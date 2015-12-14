@@ -42,8 +42,8 @@ module WikiCloth
     # retrieve youtube embed by youtube id
     def get_youtube_video(id)
       begin
-        resp_body = (HTTParty.get "https://gdata.youtube.com/feeds/api/videos/#{id}?v=2&alt=json").body
-        title = (JSON.parse resp_body)['entry']['title']['$t']
+        resp_body = (HTTParty.get "https://noembed.com/embed?url=https://www.youtube.com/watch?v=#{id}").body
+        title = (JSON.parse resp_body)['title']
       rescue
         title = "Title wasn't found"
       end
@@ -59,7 +59,9 @@ module WikiCloth
         # Youtube: <media url="http://www.youtube.com/watch?v=[_ID_]">
         # try to retrieve youtube video from media-tag
         youtube_id = get_youtube_video_id media_url
-        result = (get_youtube_video youtube_id) if youtube_id
+        if youtube_id
+          result = get_youtube_video(youtube_id)
+        end
         # Slideshare: <media url="[_SLIDESHARE_URL_]">
         # try to retrieve slideshare slide from media-tag
         result = (get_slideshare_slide media_url) if media_url.match /https*\:\/\/.*slideshare\.net/
