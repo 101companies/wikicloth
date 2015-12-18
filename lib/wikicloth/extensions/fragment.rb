@@ -138,7 +138,6 @@ module WikiCloth
     # ....
     # </folder>
     element 'folder', :skip_html => true, :run_globals => false do |buffer|
-      # TODO: is it used at all?
       begin
         raise FragmentError, I18n.t("url attribute is required") unless buffer.element_attributes.has_key?('url')
         url = buildUrl(buffer.element_attributes['url'])

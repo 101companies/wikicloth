@@ -31,5 +31,6 @@ spec = Gem::Specification.new do |s|
   s.add_development_dependency 'i18n'
   s.add_development_dependency 'rake'
   s.add_development_dependency 'rdoc'
-  s.add_development_dependency(RUBY_VERSION =~ /^1\.9/ ? "simplecov" : "rcov")
+  s.add_development_dependency 'rspec'
+  s.add_development_dependency 'simplecov'
 end

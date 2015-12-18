@@ -6,3 +6,4 @@ sample_documents/*.html
 .idea/
 .DS_Store
 *.gem
+coverage
