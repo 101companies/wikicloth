@@ -48,11 +48,15 @@ module WikiCloth
     end
 
     def get_json(url)
-      response = Net::HTTP.get_response(URI(url))
-      if response.code == '500' || response.code == '404'
-        raise FragmentError, 'Retrieved empty json from discovery service'
+      begin
+        response = Net::HTTP.get_response(URI(url))
+        if response.code == '500' || response.code == '404'
+          raise FragmentError, 'Retrieved empty json from discovery service'
+        end
+        JSON.parse(response.body)
+      rescue
+        raise FragmentError, 'Discovery Service unavailable'
       end
-      JSON.parse(response.body)
     end
 
     # <fragment>
