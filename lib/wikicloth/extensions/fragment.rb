@@ -14,10 +14,10 @@ module WikiCloth
   class FragmentExtension < Extension
 
     def buildUrl(url)
-      resource_prefix = "http://101companies.org/resources/"
+      resource_prefix = "http://worker.101companies.org/services/discovery/"
 
       #absolute path -- keep it as is
-      if url.start_with?("http://101companies.org/resources")
+      if url.start_with?("http://worker.101companies.org/services/discovery/")
         return url
       end
 
@@ -49,13 +49,16 @@ module WikiCloth
 
     def get_json(url)
       begin
+        puts url
+        url = URI.parse(url)
         request = Net::HTTP::Get.new url
         response = Net::HTTP.start(url.host, url.port, read_timeout: 0.5, connect_timeout: 1) {|http| http.request(request)}
+
         if response.code == '500' || response.code == '404'
           raise FragmentError, 'Retrieved empty json from discovery service'
         end
-        JSON.parse(response.body)
-      rescue
+        JSON.parse(response.message)
+      rescue JSON::ParserError, Timeout::Error, Errno::EHOSTUNREACH, Errno::EINVAL, Errno::ECONNREFUSED, Errno::ECONNRESET, EOFError, Net::HTTPBadResponse, Net::HTTPHeaderSyntaxError, Net::ProtocolError => e
         raise FragmentError, 'Discovery Service unavailable'
       end
     end
