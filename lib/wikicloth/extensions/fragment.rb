@@ -49,7 +49,6 @@ module WikiCloth
 
     def get_json(url)
       begin
-        puts url
         url = URI.parse(url)
         request = Net::HTTP::Get.new url
         response = Net::HTTP.start(url.host, url.port, read_timeout: 0.5, connect_timeout: 1) {|http| http.request(request)}
@@ -71,16 +70,67 @@ module WikiCloth
 
       begin
         raise FragmentError, I18n.t("url attribute is required") unless buffer.element_attributes.has_key?('url')
+
+        ns = Parser.context[:ns].downcase.pluralize
+        title = Parser.context[:title]
+        fragment = buffer.element_attributes['url'].split('/')
+
         url = buildUrl(buffer.element_attributes['url'])
-        json = get_json(url)
-        content = Pygments.highlight(json['content'], :lexer => json['geshi'])
+
+        file = fragment.take_while { |s| !s.include?('.') }
+        file += [fragment[file.length]]
+        fragment = fragment.drop(file.length)
+
+        path = "~/101web/data/resources/#{ns}/#{title}/#{file.join('/')}.extractor.json"
+        path = File.expand_path(path)
+
+        if File.exists?(path)
+          content = File.read(path)
+          data = JSON::parse(content)
+        else
+          ap 'does not exist'
+          data = {
+            'imports' => [],
+            'fragments' => []
+          }
+        end
+
+        def find_fragment(query, data)
+          head = query.take(2)
+          tail = query.drop(2)
+
+
+          data.each do |f|
+            if f['classifier'] == head[0] && f['name'] == head[1]
+              if tail.length > 0
+                data = f['fragments']
+                return find_fragment(tail, data)
+              else
+                return f
+              end
+            end
+          end
+        end
+
+        json = find_fragment(fragment, data['fragments'])
+        unless json
+          raise FragmentError, 'Retrieved empty json from discovery service'
+        end
+
+        path = "~/101results/101repo/#{ns}/#{title}/#{file.join('/')}"
+        path = File.expand_path(path)
+
+        content = File.read(path).lines.map(&:chomp)
+        content = content[json['startLine']-1..json['endLine']-1].join("\n")
+
+
+        content = Pygments.highlight(content, :lexer => json['geshi'])
       rescue FragmentError => err
         error = WikiCloth.error_template err.message
       end
 
       if error.nil?
-        "<div style=\"float:right; margin-right:60px\"><a href=\"#{url}?"+
-            "format=html\" target=\"_blank\"\>Explore</a></div>#{content}"
+        content
       else
         error
       end
