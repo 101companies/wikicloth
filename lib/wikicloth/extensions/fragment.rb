@@ -110,6 +110,8 @@ module WikiCloth
               end
             end
           end
+
+          []
         end
 
         json = find_fragment(fragment, data['fragments'])
