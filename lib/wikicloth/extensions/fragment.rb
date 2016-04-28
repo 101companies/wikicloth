@@ -113,7 +113,7 @@ module WikiCloth
         end
 
         json = find_fragment(fragment, data['fragments'])
-        unless json
+        if json.length == 0
           raise FragmentError, 'Retrieved empty json from discovery service'
         end
 
