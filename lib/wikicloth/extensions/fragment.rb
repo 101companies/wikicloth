@@ -77,9 +77,14 @@ module WikiCloth
 
         url = buildUrl(buffer.element_attributes['url'])
 
-        file = fragment.take_while { |s| !s.include?('.') }
-        file += [fragment[file.length]]
-        fragment = fragment.drop(file.length)
+        if fragment.length == 1
+          file = fragment
+          fragment = []
+        else
+          file = fragment.take_while { |s| !s.include?('.') }
+          file += [fragment[file.length]]
+          fragment = fragment.drop(file.length)
+        end
 
         path = "~/101web/data/resources/#{ns}/#{title}/#{file.join('/')}.extractor.json"
         path = File.expand_path(path)
@@ -88,7 +93,6 @@ module WikiCloth
           content = File.read(path)
           data = JSON::parse(content)
         else
-          ap 'does not exist'
           data = {
             'imports' => [],
             'fragments' => []
@@ -114,19 +118,35 @@ module WikiCloth
           []
         end
 
-        json = find_fragment(fragment, data['fragments'])
-        if json.length == 0
-          raise FragmentError, 'Retrieved empty json from discovery service'
+        if fragment.length > 0
+          json = find_fragment(fragment, data['fragments'])
+
+          if json.length == 0
+            raise FragmentError, 'Retrieved empty json from discovery service'
+          end
+
+          path = "~/101results/101repo/#{ns}/#{title}/#{file.join('/')}"
+          path = File.expand_path(path)
+
+          content = File.read(path).lines.map(&:chomp)
+          content = content[json['startLine']-1..json['endLine']-1].join("\n")
+
+          path = "~/101web/data/resources/#{ns}/#{title}/#{file.join('/')}.lang.json"
+          lang = JSON::parse(File.read(File.expand_path(path)), quirks_mode: true)
+
+          content = Pygments.highlight(content, :lexer => lang.downcase)
+        else
+          path = "~/101results/101repo/#{ns}/#{title}/#{file.join('/')}"
+          path = File.expand_path(path)
+
+          content = File.read(path)
+
+          path = "~/101web/data/resources/#{ns}/#{title}/#{file.join('/')}.lang.json"
+          lang = JSON::parse(File.read(File.expand_path(path)), quirks_mode: true)
+
+          content = Pygments.highlight(content, :lexer => lang.downcase)
         end
 
-        path = "~/101results/101repo/#{ns}/#{title}/#{file.join('/')}"
-        path = File.expand_path(path)
-
-        content = File.read(path).lines.map(&:chomp)
-        content = content[json['startLine']-1..json['endLine']-1].join("\n")
-
-
-        content = Pygments.highlight(content, :lexer => json['geshi'])
       rescue FragmentError => err
         error = WikiCloth.error_template err.message
       end
