@@ -71,7 +71,7 @@ module WikiCloth
       begin
         raise FragmentError, I18n.t("url attribute is required") unless buffer.element_attributes.has_key?('url')
 
-        ns = Parser.context[:ns].downcase.pluralize
+        ns = Parser.context[:ns].downcase.pluralize || 'Concept'
         title = Parser.context[:title]
         fragment = buffer.element_attributes['url'].split('/')
 
