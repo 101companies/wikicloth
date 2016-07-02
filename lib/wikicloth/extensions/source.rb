@@ -24,9 +24,9 @@ module WikiCloth
             lexer = buffer.element_attributes['language'].downcase
           end
 
-          unless VALID_LANGUAGES.include?(lexer)
-            raise 'Invalid Language supplied'
-          end
+          # unless VALID_LANGUAGES.include?(lexer)
+          #   raise 'Invalid Language supplied'
+          # end
 
           content = Pygments.highlight(content, lexer: lexer)
         rescue => err
