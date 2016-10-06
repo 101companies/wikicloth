@@ -129,7 +129,7 @@ module WikiCloth
           path = File.expand_path(path)
 
           if !File.exists?(path)
-            return WikiCloth.error_template('Fragment not found')
+            raise FragmentError, 'Fragment not found'
           end
           content = File.read(path).lines.map(&:chomp)
           content = content[json['startLine']-1..json['endLine']-1].join("\n")
@@ -143,7 +143,7 @@ module WikiCloth
           path = File.expand_path(path)
 
           if !File.exists?(path)
-            return WikiCloth.error_template('Fragment not found')
+            raise FragmentError, 'Fragment not found'
           end
           content = File.read(path)
 
