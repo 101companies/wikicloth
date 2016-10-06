@@ -122,7 +122,7 @@ module WikiCloth
           json = find_fragment(fragment, data['fragments'])
 
           if json.length == 0
-            raise FragmentError, 'Retrieved empty json from discovery service'
+            raise FragmentError, 'Fragment not found'
           end
 
           path = "~/101results/101repo/#{ns}/#{title}/#{file.join('/')}"
@@ -139,6 +139,9 @@ module WikiCloth
           path = "~/101results/101repo/#{ns}/#{title}/#{file.join('/')}"
           path = File.expand_path(path)
 
+          if !File.exists?(path)
+            return WikiCloth.error_template('Fragment not found')
+          end
           content = File.read(path)
 
           path = "~/101web/data/resources/#{ns}/#{title}/#{file.join('/')}.lang.json"

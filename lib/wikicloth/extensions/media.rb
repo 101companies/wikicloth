@@ -7,6 +7,9 @@ module WikiCloth
 
     def get_slideshare_slide(url)
       # do api request to slideshare and parse retrieved xml
+      if !ENV['SLIDESHARE_API_KEY']
+        return WikiCloth::error_template "Failed to retrieve slides"
+      end
       begin
         timestamp = Time.now.to_i.to_s
         params_string = "?slideshow_url=#{url}&api_key=#{ENV["SLIDESHARE_API_KEY"]}"+
