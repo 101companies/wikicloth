@@ -128,6 +128,9 @@ module WikiCloth
           path = "~/101results/101repo/#{ns}/#{title}/#{file.join('/')}"
           path = File.expand_path(path)
 
+          if !File.exists?(path)
+            return WikiCloth.error_template('Fragment not found')
+          end
           content = File.read(path).lines.map(&:chomp)
           content = content[json['startLine']-1..json['endLine']-1].join("\n")
 
