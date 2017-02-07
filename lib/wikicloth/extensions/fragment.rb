@@ -177,17 +177,23 @@ module WikiCloth
         title = Parser.context[:title]
         file = buffer.element_attributes['url']
 
-        path = "~/101web/data/resources/#{ns}/#{file}"
+        path = "~/101results/101repo/#{ns}/#{title}/#{file}"
+        lang_path = "~/101web/data/resources/#{ns}/#{title}/#{file}.lang.json"
+
         path = File.expand_path(path)
+        lang_path = File.expand_path(lang_path)
 
         if !File.exists?(path)
           raise FragmentError, 'Fragment not found'
         end
+
         content = File.read(path)
 
-        lang = JSON::parse(File.read(File.expand_path(path)), quirks_mode: true)
+        if File.exists?(lang_path)
+          lang = JSON::parse(File.read(File.expand_path(lang_path)), quirks_mode: true)
 
-        content = Pygments.highlight(content, :lexer => lang.downcase)
+          content = Pygments.highlight(content, lexer: lang.downcase)
+        end
       rescue FragmentError => err
         error = WikiCloth.error_template err.message
       end
