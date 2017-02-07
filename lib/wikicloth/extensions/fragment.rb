@@ -168,54 +168,34 @@ module WikiCloth
     # ....
     # </file>
     element 'file', :skip_html => true, :run_globals => false do |buffer|
-
       error = nil
 
       begin
         raise FragmentError, I18n.t("url attribute is required") unless buffer.element_attributes.has_key?('url')
-        url = buildUrl(buffer.element_attributes['url'])
-        json = get_json(url)
-        name = json['name']
-        content = Pygments.highlight(json['content'], :lexer => json['geshi'])
+
+        ns = Parser.context[:ns].downcase.pluralize || 'Concept'
+        title = Parser.context[:title]
+        file = buffer.element_attributes['url']
+
+        path = "~/101web/data/resources/#{ns}/#{file}"
+        path = File.expand_path(path)
+
+        if !File.exists?(path)
+          raise FragmentError, 'Fragment not found'
+        end
+        content = File.read(path)
+
+        lang = JSON::parse(File.read(File.expand_path(path)), quirks_mode: true)
+
+        content = Pygments.highlight(content, :lexer => lang.downcase)
       rescue FragmentError => err
         error = WikiCloth.error_template err.message
       end
 
-      need_to_show_content = buffer.element_attributes.has_key?('show') && (buffer.element_attributes['show'] == "true")
-
-      # if set user defined name for file fragment
-      if buffer.element_attributes.has_key?('name')
-        user_defined_name = buffer.element_attributes['name']
-        # remove trailing spaces
-        user_defined_name.strip!
-        # if not empty -> rewrite current param name
-        if !user_defined_name.nil? && user_defined_name != ''
-          name = user_defined_name
-        end
-      end
-
       if error.nil?
-        if need_to_show_content
-          if content
-            "#{content}"
-          else
-            WikiCloth.error_template 'No content found for file'
-          end
-        else
-          "<a href=\"#{url}?format=html\">#{name}</a>"
-        end
+        content
       else
-        if need_to_show_content
-          error
-        else
-          # if not defined name by user and not retrieved from discovery
-          # then define name from filename
-          if name.nil?
-            require 'pathname'
-            name = Pathname.new(buffer.element_attributes['url']).basename
-          end
-          "<span class='fragment-failed'>#{name}</span>"
-        end
+        error
       end
 
     end
