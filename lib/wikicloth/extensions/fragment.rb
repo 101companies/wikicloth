@@ -196,7 +196,11 @@ module WikiCloth
         if File.exists?(lang_path)
           lang = JSON::parse(File.read(File.expand_path(lang_path)), quirks_mode: true)
 
-          content = Pygments.highlight(content, lexer: lang.downcase)
+          begin
+            content = Pygments.highlight(content, lexer: lang.downcase)
+          rescue ClassNotFound
+            content = "<code>#{content}</code>"
+          end
         end
       rescue FragmentError => err
         error = WikiCloth.error_template err.message
