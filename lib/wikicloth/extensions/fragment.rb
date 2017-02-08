@@ -150,7 +150,11 @@ module WikiCloth
           path = "~/101web/data/resources/#{ns}/#{title}/#{file.join('/')}.lang.json"
           lang = JSON::parse(File.read(File.expand_path(path)), quirks_mode: true)
 
-          content = Pygments.highlight(content, :lexer => lang.downcase)
+          if lang != 'unkown'
+            content = Pygments.highlight(content, :lexer => lang.downcase)
+          else
+            content = "<code>#{content}</code>"
+          end
         end
 
       rescue FragmentError => err
