@@ -16,17 +16,11 @@ describe 'fragment' do
     expect(html).to include('<div class=\'error\'>Fragment not found</div>')
   end
 
-  # it 'renders a folder' do
-  #   html = render_md('<folder url="/concepts/Quicksort"/>')
-  #
-  #   expect(html).to include('<a href="http://101companies.org/resources/concepts/Quicksort?format=html">concepts/Quicksort</a>')
-  # end
-  #
-  # it 'has an unkown folder' do
-  #   html = render_md('<folder url="/concepts/NotAConcept"/>')
-  #
-  #   expect(html).to include('<div class=\'error\'>Retrieved empty json from discovery service</div>')
-  # end
+  it 'renders a file with unkown language' do
+    html = render_md('<file url=\'haskellEngineer.cabal\'/>', context: {:ns=>"Contribution", :title=>"haskellEngineer"})
+
+    expect(html).to include('<code>')
+  end
 
   it 'renders a file' do
     html = render_md('<file url=\'HelloWorld.java\'/>', context: { ns: 'Language', title: 'Java' })

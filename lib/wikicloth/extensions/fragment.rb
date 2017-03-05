@@ -198,7 +198,7 @@ module WikiCloth
 
           begin
             content = Pygments.highlight(content, lexer: lang.downcase)
-          rescue ClassNotFound
+          rescue MentosError
             content = "<code>#{content}</code>"
           end
         end
