@@ -1,6 +1,9 @@
 require 'rubygems' if RUBY_VERSION < '1.9'
 require 'jcode' if RUBY_VERSION < '1.9'
 require 'builder'
+
+require 'active_support/all'
+
 # if i18n gem loaded use it instead
 require File.join(File.expand_path(File.dirname(__FILE__)), "wikicloth", "i18n") unless defined?(I18n)
 I18n::Backend::Simple.send(:include, I18n::Backend::Fallbacks) if defined?(I18n::Backend::Simple)

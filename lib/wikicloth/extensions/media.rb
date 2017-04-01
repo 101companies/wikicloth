@@ -1,34 +1,74 @@
+require 'cgi'
+require 'httparty'
+require 'nokogiri'
+require 'json'
+
 module WikiCloth
   class MediaExtension < Extension
 
-    require 'httparty'
-    require 'nokogiri'
-    require 'json'
+    module SlideshareService
+      Response = Struct.new(:embed, :download_link)
+
+      class << self
+
+        def get_slides(url)
+          data = request_data(url)
+          response = parse_network_response(data)
+          if failed_response?(response)
+            return nil
+          end
+          extract_data(response)
+        rescue HTTParty::Error
+          nil
+        end
+
+        private
+
+        def failed_response?(response)
+          response.root.name == 'SlideShareServiceError'
+        end
+
+        def extract_data(data)
+          embed = data.root.xpath("Embed").text
+          download_link = data.root.xpath("DownloadUrl").text
+
+          Response.new(embed, download_link)
+        end
+
+        def request_data(url)
+          timestamp = Time.now.to_i.to_s
+          params_string = "?slideshow_url=#{url}&api_key=#{ENV["SLIDESHARE_API_KEY"]}"+
+              "&hash=#{Digest::SHA1.hexdigest(ENV["SLIDESHARE_API_SECRET"] + timestamp)}&ts=#{timestamp}"
+
+          response = HTTParty.get("https://www.slideshare.net/api/2/get_slideshow#{params_string}")
+          response.body
+        end
+
+        def parse_network_response(data)
+          Nokogiri.XML(data)
+        end
+
+      end
+    end
 
     def get_slideshare_slide(url)
       # do api request to slideshare and parse retrieved xml
       if !ENV['SLIDESHARE_API_KEY']
         return WikiCloth::error_template "Failed to retrieve slides"
       end
-      begin
-        timestamp = Time.now.to_i.to_s
-        params_string = "?slideshow_url=#{url}&api_key=#{ENV["SLIDESHARE_API_KEY"]}"+
-            "&hash=#{Digest::SHA1.hexdigest(ENV["SLIDESHARE_API_SECRET"] + timestamp)}&ts=#{timestamp}"
-        response  = Nokogiri.XML HTTParty.get("https://www.slideshare.net/api/2/get_slideshow#{params_string}").body
-      end
-      return WikiCloth::error_template "Failed to retrieve slides" if !(defined? response)
+
+      response = SlideshareService.get_slides(url)
+      return WikiCloth::error_template "Failed to retrieve slides" if response.nil?
       # retrieve embed and download link from response
-      embed = response.root.xpath("Embed").text
-      download_link = response.root.xpath("DownloadUrl").text
+
       # prepare special link for rails app
-      if !download_link.empty?
-        require 'cgi'
-        app_download_link ="<a target='_blank' href='/get_slide/#{CGI.escape(url)}' download-link='#{download_link}'>"+
+      if response.download_link.present?
+        app_download_link ="<a target='_blank' href='/get_slide/#{CGI.escape(url)}' download-link='#{response.download_link}'>"+
           "<i class='icon-download-alt'></i> Download slides</a>"
       end
       # retrieved embed
-      if embed
-        "<div class='slideshare-slide'>#{embed}<p>#{(defined? app_download_link) ? app_download_link : ''}</p></div>"
+      if response.embed
+        "<div class='slideshare-slide'>#{response.embed}<p>#{(defined? app_download_link) ? app_download_link : ''}</p></div>"
       else
         WikiCloth::error_template "Failed to retrieve slides"
       end

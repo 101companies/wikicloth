@@ -3,11 +3,7 @@ require 'pygments.rb'
 module WikiCloth
   class SourceExtension < Extension
 
-    VALID_LANGUAGES = [ 'as','applescript','arm','asp','asm','awk','bat','bibtex','bbcode','bison','lua',
-      'bms','boo','c','c++','cc','cpp','cxx','h','hh','hpp','hxx','clojure','cbl','cob','cobol','cfc','cfm',
-      'coldfusion','csharp','cs','css','d','diff','patch','erlang','erl','hrl','go','hs','haskell','html',
-      'htm','xml','xhtml','httpd','js','javascript','matlab','m','perl','cgi','pl','plex','plx','pm','php',
-      'php3','php4','php5','php6','python','py','ruby','rb', 'java', 'sql', 'bash']
+    VALID_LANGUAGES = Pygments.lexers.keys.map(&:downcase)
 
     # <syntaxhighlight lang="language">source code</syntaxhighlight>
     #
@@ -24,9 +20,9 @@ module WikiCloth
             lexer = buffer.element_attributes['language'].downcase
           end
 
-          # unless VALID_LANGUAGES.include?(lexer)
-          #   raise 'Invalid Language supplied'
-          # end
+          unless VALID_LANGUAGES.include?(lexer)
+            raise 'Invalid Language supplied'
+          end
 
           content = Pygments.highlight(content, lexer: lexer)
         rescue => err

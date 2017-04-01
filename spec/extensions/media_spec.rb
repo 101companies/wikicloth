@@ -5,10 +5,16 @@ describe 'media' do
   describe 'slideshare' do
 
     it 'renders slideshare' do
+      ENV['SLIDESHARE_API_KEY'] = 'something'
+      ENV['SLIDESHARE_API_SECRET'] = 'something else'
+
+      allow(WikiCloth::MediaExtension::SlideshareService).to receive(:get_slides) do
+        WikiCloth::MediaExtension::SlideshareService::Response.new('some text', 'some text')
+      end
+
       html = render_md('<media url="http://www.slideshare.net/rlaemmel/rmi-23850462"/>')
 
-      expect(html).to include('<iframe src="https://www.slideshare.net/slideshow/embed_code/key/afKVTRPAku4UjC"')
-      expect(html).to include('Remote method invocation (as part of the the PTT lecture)')
+      expect(html).to include("<p><div class='slideshare-slide'>some text<p><a target='_blank' href='/get_slide/http%3A%2F%2Fwww.slideshare.net%2Frlaemmel%2Frmi-23850462' download-link='some text'><i class='icon-download-alt'></i> Download slides</a></p></div></p>")
     end
 
   end
