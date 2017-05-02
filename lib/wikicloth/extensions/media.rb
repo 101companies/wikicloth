@@ -1,5 +1,5 @@
 require 'cgi'
-require 'httparty'
+require 'net/http'
 require 'nokogiri'
 require 'json'
 
@@ -18,7 +18,7 @@ module WikiCloth
             return nil
           end
           extract_data(response)
-        rescue HTTParty::Error
+        rescue StandardError
           nil
         end
 
@@ -40,8 +40,8 @@ module WikiCloth
           params_string = "?slideshow_url=#{url}&api_key=#{ENV["SLIDESHARE_API_KEY"]}"+
               "&hash=#{Digest::SHA1.hexdigest(ENV["SLIDESHARE_API_SECRET"] + timestamp)}&ts=#{timestamp}"
 
-          response = HTTParty.get("https://www.slideshare.net/api/2/get_slideshow#{params_string}")
-          response.body
+          uri = URI("https://www.slideshare.net/api/2/get_slideshow#{params_string}")
+          Net::HTTP.get(uri)
         end
 
         def parse_network_response(data)
@@ -84,9 +84,10 @@ module WikiCloth
 
     # retrieve youtube embed by youtube id
     def get_youtube_video(id)
+      uri = URI("https://noembed.com/embed?url=https://www.youtube.com/watch?v=#{id}")
       begin
-        resp_body = (HTTParty.get "https://noembed.com/embed?url=https://www.youtube.com/watch?v=#{id}").body
-        title = (JSON.parse resp_body)['title']
+        resp_body = Net::HTTP.get(uri)
+        title = JSON.parse(resp_body)['title']
       rescue
         title = "Title wasn't found"
       end
