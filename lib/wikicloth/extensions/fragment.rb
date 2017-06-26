@@ -198,7 +198,7 @@ module WikiCloth
           begin
             content = Pygments.highlight(content, lexer: lang.downcase)
           rescue MentosError
-            content = "<code>#{content}</code>"
+            content = "<pre>#{content}</pre>"
           end
         end
       rescue FragmentError => err
