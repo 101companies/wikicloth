@@ -261,7 +261,7 @@ class WikiBuffer
     "<h#{hnum}>" + (@options[:noedit] == true ? "" :
       "<span class=\"editsection\">&#91;<a href=\"" + @options[:link_handler].section_link(id) +
       "\" title=\"#{I18n.t('edit section', :name => title)}\">#{I18n.t('edit')}</a>&#93;</span> ") +
-      "<a name=\"#{id}\"></a><span class=\"mw-headline\" id=\"#{id}\">#{title}</span></h#{hnum}>\n"
+      "<a href=\"/Section:#{title}\" name=\"#{id}\"><span class=\"mw-headline\" id=\"#{id}\">#{title}</span></a></h#{hnum}>\n"
   end
 
   def get_id_for(val)
@@ -417,7 +417,7 @@ class WikiBuffer
         open.each_char do |e|
           ret << "<#{list_tag_for(e)}><#{list_inner_tag_for(e)}>"
         end
-        
+
         ret << content
 
         last = pieces.clone

@@ -48,10 +48,10 @@ module WikiCloth
     def title
       @clean_title
     end
-    
+
     def is_resource_section
       @is_resource_section
-    end  
+    end
 
     def depth
       @depth ||= 1
