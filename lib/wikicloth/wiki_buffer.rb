@@ -257,11 +257,19 @@ class WikiBuffer
   end
 
   def gen_heading(hnum,title)
-    id = get_id_for(title.gsub(/\s+/,'_'))
-    "<h#{hnum}>" + (@options[:noedit] == true ? "" :
-      "<span class=\"editsection\">&#91;<a href=\"" + @options[:link_handler].section_link(id) +
-      "\" title=\"#{I18n.t('edit section', :name => title)}\">#{I18n.t('edit')}</a>&#93;</span> ") +
-      "<a href=\"/Section:#{title}\" name=\"#{id}\"><span class=\"mw-headline\" id=\"#{id}\">#{title}</span></a></h#{hnum}>\n"
+    if hnum == 2
+      id = get_id_for(title.gsub(/\s+/,'_'))
+      "<h#{hnum}>" + (@options[:noedit] == true ? "" :
+        "<span class=\"editsection\">&#91;<a href=\"" + @options[:link_handler].section_link(id) +
+        "\" title=\"#{I18n.t('edit section', :name => title)}\">#{I18n.t('edit')}</a>&#93;</span> ") +
+        "<a href=\"/Section:#{title}\" name=\"#{id}\"><span class=\"mw-headline\" id=\"#{id}\">#{title}</span></a></h#{hnum}>\n"
+    else
+      id = get_id_for(title.gsub(/\s+/,'_'))
+      "<h#{hnum}>" + (@options[:noedit] == true ? "" :
+        "<span class=\"editsection\">&#91;<a href=\"" + @options[:link_handler].section_link(id) +
+        "\" title=\"#{I18n.t('edit section', :name => title)}\">#{I18n.t('edit')}</a>&#93;</span> ") +
+        "<span><span class=\"mw-headline\" id=\"#{id}\">#{title}</span></span></h#{hnum}>\n"
+    end
   end
 
   def get_id_for(val)
