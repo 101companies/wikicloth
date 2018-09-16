@@ -70,7 +70,7 @@ module WikiCloth
       begin
         raise FragmentError, I18n.t("url attribute is required") unless buffer.element_attributes.has_key?('url')
 
-        if buffer.element_attributes['url'].start_with('/')
+        if buffer.element_attributes['url'].starts_with?('/')
           path = "~/101web/data/resources/#{buffer.element_attributes['url']}.extractor.json"
         else
           ns = Parser.context[:ns].downcase.pluralize || 'Concept'
