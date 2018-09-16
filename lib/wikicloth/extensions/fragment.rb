@@ -70,22 +70,27 @@ module WikiCloth
       begin
         raise FragmentError, I18n.t("url attribute is required") unless buffer.element_attributes.has_key?('url')
 
-        ns = Parser.context[:ns].downcase.pluralize || 'Concept'
-        title = Parser.context[:title]
-        fragment = buffer.element_attributes['url'].split('/')
-
-        url = buildUrl(buffer.element_attributes['url'])
-
-        if fragment.length == 1
-          file = fragment
-          fragment = []
+        if buffer.element_attributes['url'].start_with('/')
+          path = "~/101web/data/resources/#{buffer.element_attributes['url']}.extractor.json"
         else
-          file = fragment.take_while { |s| !s.include?('.') }
-          file += [fragment[file.length]]
-          fragment = fragment.drop(file.length)
+          ns = Parser.context[:ns].downcase.pluralize || 'Concept'
+          title = Parser.context[:title]
+          fragment = buffer.element_attributes['url'].split('/')
+
+          url = buildUrl(buffer.element_attributes['url'])
+
+          if fragment.length == 1
+            file = fragment
+            fragment = []
+          else
+            file = fragment.take_while { |s| s.count('.') > 1 || !s.include?('.') }
+            file += [fragment[file.length]]
+            fragment = fragment.drop(file.length)
+          end
+
+          path = "~/101web/data/resources/#{ns}/#{title}/#{file.join('/')}.extractor.json"
         end
 
-        path = "~/101web/data/resources/#{ns}/#{title}/#{file.join('/')}.extractor.json"
         path = File.expand_path(path)
 
         if File.exists?(path)

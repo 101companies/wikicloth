@@ -16,6 +16,14 @@ describe 'fragment' do
     expect(html).to include('<div class=\'error\'>Fragment not found</div>')
   end
 
+  it 'does stuff' do
+    html = render_md('<fragment url="../haskellEngineer/src/Company/Total.hs/pattern/total" />',
+      context: { ns: 'Contribution', title: 'NotAContribution' }
+    )
+
+    
+  end
+
   it 'renders a file with unkown language' do
     html = render_md('<file url=\'haskellEngineer.cabal\'/>', context: {:ns=>"Contribution", :title=>"haskellEngineer"})
 
