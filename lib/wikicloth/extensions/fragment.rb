@@ -72,12 +72,19 @@ module WikiCloth
 
         if buffer.element_attributes['url'].starts_with?('/')
           path = "~/101web/data/resources/#{buffer.element_attributes['url']}.extractor.json"
+
+          fragment = buffer.element_attributes['url'].split('/')
+          if fragment.length == 1
+            fragment = []
+          else
+            file = fragment.take_while { |s| s.count('.') > 1 || !s.include?('.') }
+            file += [fragment[file.length]]
+            fragment = fragment.drop(file.length)
+          end
         else
           ns = Parser.context[:ns].downcase.pluralize || 'Concept'
           title = Parser.context[:title]
           fragment = buffer.element_attributes['url'].split('/')
-
-          url = buildUrl(buffer.element_attributes['url'])
 
           if fragment.length == 1
             file = fragment
