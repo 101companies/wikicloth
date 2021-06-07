@@ -179,18 +179,18 @@ class WikiBuffer
       end
 
       # Behavior Switches
-      self.data.gsub!(/__([\w]+)__/) { |r|
-        case behavior_switch_key_name($1)
-        when "behavior_switches.toc"
-          @options[:link_handler].toc(@options[:sections], @options[:toc_numbered])
-        when "behavior_switches.noeditsection"
-          @options[:noedit] = true
-        when "behavior_switches.editsection"
-          @options[:noedit] = false
-        else
-          ""
-        end
-      }
+      # self.data.gsub!(/__([\w]+)__/) { |r|
+      #   case behavior_switch_key_name($1)
+      #   when "behavior_switches.toc"
+      #     @options[:link_handler].toc(@options[:sections], @options[:toc_numbered])
+      #   when "behavior_switches.noeditsection"
+      #     @options[:noedit] = true
+      #   when "behavior_switches.editsection"
+      #     @options[:noedit] = false
+      #   else
+      #     ""
+      #   end
+      # }
 
       # Horizontal Rule
       self.data.gsub!(/^([-]{4,})/) { |r| "<hr />" }
